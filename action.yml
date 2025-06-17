@@ -8,6 +8,13 @@ inputs:
   retention-days:
     description: 'How many days to keep the zip archive'
     default: 5
+  artifact-name:
+    description: 'Name of the uploaded artifact'
+    default: ${{ github.event.repository.name }}
+  upload-plugin-artifact:
+    description: 'Whether to upload the plugin artifact'
+    default: true
+    type: boolean
 runs:
   using: 'composite'
   steps:
@@ -18,13 +25,26 @@ runs:
 
     - name: Unzip the archive (prevents double zip problem)
       id: unzip
-      run: unzip ${{ github.event.repository.name }}.zip -d zipfile
+      run: |
+        mkdir -p zipfile/${{ env.SLUG }}
+        unzip ${{ github.event.repository.name }}.zip -d zipfile/${{ env.SLUG }}
       shell: bash
 
     - name: Upload the archive as an artifact
       id: upload-plugin-artifact
+      if: ${{ inputs.upload-plugin-artifact == 'true' }}
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ github.event.repository.name }}
+        name: ${{ inputs.artifact-name }}
         path: zipfile
         retention-days: ${{ inputs.retention-days }}
+outputs:
+  zipfile-path:
+    description: 'Path to the zipfile directory'
+    value: zipfile
+  artifact-id:
+    description: 'ID of the uploaded artifact'
+    value: ${{ steps.upload-plugin-artifact.outputs.artifact-id }}
+  artifact-url:
+    description: 'URL of the uploaded artifact'
+    value: ${{ steps.upload-plugin-artifact.outputs.artifact-url }}
