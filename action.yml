@@ -33,7 +33,7 @@ runs:
     - name: Upload the archive as an artifact
       id: upload-plugin-artifact
       if: ${{ inputs.upload-plugin-artifact == 'true' }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
       with:
         name: ${{ inputs.artifact-name }}
         path: zipfile
